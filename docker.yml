@@ -1,0 +1,8 @@
+---
+- name: Latest stable Docker
+  sudo: yes
+  hosts:
+    - all
+
+  roles:
+    - docker

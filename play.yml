@@ -1,0 +1,12 @@
+---
+- name : Generic Raring Vagrant VM
+  hosts: play
+
+  vars_files:
+    - vars/hipchat.yml
+
+  roles:
+    - base
+    - docker
+    - nginx
+    - myapp

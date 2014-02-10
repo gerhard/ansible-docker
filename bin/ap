@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+role="${1:-base.yml}"
+shift
+inventory="${1:-hosts}"
+shift
+args=$@
+
+ansible-playbook "$role" --inventory-file "$inventory" --module-path ./modules/sshknownhosts $args

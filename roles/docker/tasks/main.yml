@@ -1,0 +1,12 @@
+- include: debian.yml
+  when: "ansible_os_family == 'Debian'"
+
+- include: archlinux.yml
+  when: "ansible_os_family == 'Archlinux'"
+
+- name: Start docker on boot
+  service: name=docker state=started enabled=yes
+
+- name: Docker aliases
+  copy: src=docker_aliases.sh dest=/etc/profile.d/docker_aliases.sh
+        mode=0644 owner=root group=root

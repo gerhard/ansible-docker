@@ -1,0 +1,19 @@
+---
+- name: DigitalOcean
+  hosts: localhost
+
+  vars_files:
+    - vars/digital_ocean.yml
+
+  tasks:
+  - name: Create DigitalOcean droplet
+    digital_ocean: >
+      state=active
+      private_networking=yes
+      name=docker-{{ item['name'] }}
+      unique_name=yes
+      size_id={{ size_id }}
+      region_id={{ item['id'] }}
+      image_id={{ image_id }}
+      ssh_key_ids={{ ssh_key_id }}
+    with_items: $regions

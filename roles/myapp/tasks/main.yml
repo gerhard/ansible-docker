@@ -1,0 +1,83 @@
+- name: Update app repository
+  tags: run
+  git: >
+    repo={{ app_github_clone_url }}
+    version={{ app_branch }}
+    dest={{ app_cloned_path }}
+  register: git_repository
+
+- name: Dependent containers
+  shell: ls {{ app_cloned_path }}/.docker.* | cat
+  register: dependent_containers
+
+- include: mysql.yml
+  when: (dependent_containers.stdout.find('mysql') != -1)
+
+- include: redis.yml
+  when: (dependent_containers.stdout.find('redis') != -1)
+
+- name: Ensure we have the latest app master image
+  command: docker build -t {{ app_name }}:master {{ app_cloned_path }}
+  when: (git_repository.after != git_repository.before) and (app_branch == "master")
+
+- name: Ensure app branch image builds from master image
+  lineinfile: >
+    dest="{{ app_cloned_path }}/Dockerfile"
+    regexp="^FROM"
+    line="FROM {{ app_name }}:master"
+  when: (git_repository.after != git_repository.before) and (app_branch != "master")
+
+- name: Ensure app branch image exists
+  shell: "docker images | grep {{ app_name }} | grep -c {{ app_branch }} | cat"
+  register: app_branch_image
+
+- name: Build app branch image
+  command: docker build -t {{ app_name }}:{{ app_branch }} {{ app_cloned_path }}
+  when: (app_branch_image.stdout == "0") or (git_repository.after != git_repository.before) and (app_branch != "master")
+
+- name: Ensure all tests pass
+  tags: run
+  command: >
+    docker run
+    -name {{ app_name }}-{{ git_repository.after }}.test
+    -link {{ app_name }}.{{ app_branch }}-redis:redis
+    -link {{ app_name }}.{{ app_branch }}-mysql:mysql
+    {{ app_name }}:{{ app_branch }}
+    /bin/bash /test
+  register: new_app_test_container
+  when: (git_repository.after != git_repository.before)
+
+- name: Check app container status
+  tags: run
+  shell: "docker ps -a | grep '{{ app_name }}-{{ git_repository.after }} ' | cat"
+  register: app_container_status
+
+- name: Remove app container if stopped (avoids name collissions)
+  tags: run
+  command: docker rm {{ app_name }}-{{ git_repository.after }}
+  register: app_container_removed
+  when: (app_container_status.stdout.find('Exit ') != -1)
+
+- name: Start new app container
+  tags: run
+  command: >
+    docker run -i -t -d
+    -name {{ app_name }}-{{ git_repository.after }}
+    -p 127.0.0.1::{{ app_private_port }}
+    -link {{ app_name }}.{{ app_branch }}-redis:redis
+    -link {{ app_name }}.{{ app_branch }}-mysql:mysql
+    {{ app_name }}:{{ app_branch }}
+  register: new_app_container
+  when: (app_container_status.stdout.find('Up ') == -1)
+
+- name: Find app container public port
+  tags: run
+  command: docker port {{ app_name }}-{{ git_repository.after }} {{ app_private_port }}
+  register: app_public_host
+  when: (new_app_container | changed)
+
+- include: branch.yml
+  when: (new_app_container | changed) and (app_branch != "master")
+
+- include: master.yml
+  when: (new_app_container | changed) and (app_branch == "master")

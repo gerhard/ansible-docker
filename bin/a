@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+inventory="${1:-hosts}"
+shift
+args=$@
+
+ansible --inventory-file $inventory $args

@@ -1,0 +1,31 @@
+- name: Check MySQL data container
+  shell: "docker ps -a | grep -c '{{ app_name }}.{{ app_branch }}-mysql_data ' | cat"
+  register: mysql_data_container_present
+
+- name: Build MySQL data container
+  command: >
+    docker run -name {{ app_name }}.{{ app_branch }}-mysql_data
+    -v {{ mysql_data_container_volume }}
+    busybox
+    mkdir -p {{ mysql_data_container_volume }}
+  when: mysql_data_container_present.stdout == "0"
+
+- name: Check MySQL container status
+  shell: "docker ps -a | grep '{{ app_name }}.{{ app_branch }}-mysql ' | cat"
+  register: mysql_container_status
+
+- name: Remove MySQL container with same name
+  command: docker rm {{ app_name }}.{{ app_branch }}-mysql
+  when: mysql_container_status.stdout.find('Exit ') != -1
+  register: mysql_container_removed
+
+- name: Start new MySQL container
+  command: >
+    docker run -i -t -d
+    -name {{ app_name }}.{{ app_branch }}-mysql
+    -volumes-from {{ app_name }}.{{ app_branch }}-mysql_data
+    -e ADMIN_USER={{ mysql_user }}
+    -e ADMIN_PASSWORD={{ mysql_password }}
+    -p 127.0.0.1::{{ mysql_private_port }}
+    {{ mysql_docker_image }}
+  when: (mysql_container_status.stdout.find('Up ') == -1)

@@ -1,0 +1,15 @@
+---
+app_name: my-app
+app_fqdn: my-app.com
+app_branch: master
+app_github_clone_url: git@github.com:user/my-app.git
+app_cloned_path: /usr/local/src/my-app
+app_private_port: 3000
+app_http_scheme: http
+mysql_docker_image: gerhard/mysql
+mysql_data_container_volume: /var/lib/mysql
+mysql_user: admin
+mysql_password: shhhhh
+mysql_private_port: 3306
+redis_docker_image: gerhard/redis
+redis_private_port: 6379

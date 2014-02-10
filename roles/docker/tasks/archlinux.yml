@@ -1,0 +1,2 @@
+- name: Install latest docker via pacman
+  pacman: name=docker state=installed

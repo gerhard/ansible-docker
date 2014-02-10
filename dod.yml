@@ -1,0 +1,22 @@
+---
+- name : Digital Ocean Docker
+  hosts: docker*
+
+  roles:
+    - base
+    - docker
+    - nginx
+
+  vars_files:
+    - vars/dnsmadeeasy.yml
+
+  pre_tasks:
+    - name: Create DNS record
+      dnsmadeeasy: >
+        account_key={{ dnsmadeeasy_key }}
+        account_secret={{ dnsmadeeasy_secret }}
+        domain=my-app-fqdn
+        state=present
+        record_name={{ ansible_hostname }}
+        record_type=A
+        record_value={{ ansible_default_ipv4.address }}

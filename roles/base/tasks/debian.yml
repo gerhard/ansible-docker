@@ -1,0 +1,3 @@
+- name: Install common system packages via apt
+  apt: pkg={{ item }} state=latest
+  with_items: $packages

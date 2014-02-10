@@ -1,0 +1,17 @@
+---
+user: gerhard
+packages:
+  - binutils
+  - curl
+  - dstat
+  - git
+  - htop
+  - ntp
+  - python-pycurl
+  - python-mysqldb
+  - sudo
+  - supervisor
+  - sysstat
+  - tmux
+  - vim
+  - vnstat

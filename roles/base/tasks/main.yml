@@ -1,0 +1,47 @@
+- include: debian.yml
+  when: "ansible_os_family == 'Debian'"
+
+- include: archlinux.yml
+  when: "ansible_os_family == 'Archlinux'"
+
+- name: NTP client
+  service: name=ntp state=started enabled=yes
+
+- name: Sudo group
+  group: name=sudo system=yes
+
+- name: Docker group
+  group: name=docker
+
+- name: Create my system user
+  user: name={{ user }} groups="sudo,docker" shell="/bin/bash"
+
+- name: Add personal SSH key
+  authorized_key: user={{ user }} key="{{ item }}"
+  with_file:
+    - rsa.pub
+
+- name: Add personal SSH key to root
+  authorized_key: user=root key="{{ item }}"
+  with_file:
+    - rsa.pub
+
+- name: Sudoers don't need a password
+  lineinfile: "dest=/etc/sudoers regexp='^%sudo' line='%sudo ALL=(ALL) NOPASSWD:ALL'
+              validate='visudo -cf %s'"
+
+- name: Sudoers have their ssh agent forwarded
+  copy: src=sudo_forward_ssh_agent dest=/etc/sudoers.d/sudo_forward_ssh_agent
+        mode=0660 owner=root group=root
+        validate='visudo -cf %s'
+
+- name: Add github.com to known hosts
+  sshknownhosts: host=github.com state=present
+
+- name: Make vim the default editor
+  copy: src=default_editor.sh dest=/etc/profile.d/default_editor.sh
+        mode=0644 owner=root group=root
+
+- name: Common bash aliases
+  copy: src=bash_aliases.sh dest=/etc/profile.d/bash_aliases.sh
+        mode=0644 owner=root group=root

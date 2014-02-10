@@ -1,0 +1,12 @@
+- name: Add nginx PPA repository
+  apt_repository: repo='ppa:nginx/stable' state=present
+
+- name: Install nginx
+  apt: pkg=nginx state=latest update_cache=yes
+
+- name: Customize nginx default configuration
+  copy: src=nginx.conf dest=/etc/nginx/nginx.conf owner=root group=root mode=0644
+  notify: restart nginx
+
+- name: Start nginx on boot
+  service: name=nginx state=started enabled=yes

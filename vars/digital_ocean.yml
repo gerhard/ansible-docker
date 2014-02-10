@@ -1,0 +1,9 @@
+---
+size_id: 62 # 2 CPU, 2GB, 40GB
+image_id: 350076 # Ubuntu 13.04 x64
+ssh_key_id: do-uploaded-ssh-key-id
+regions:
+  #- id: 2
+    #name: ams1
+  - id: 5
+    name: ams2

@@ -1,0 +1,17 @@
+# http://www.hvflabs.com/posts/redis-master-slave-on-docker
+- name: Check Redis container status
+  shell: "docker ps -a | grep '{{ app_name }}.{{ app_branch }}-redis ' | cat"
+  register: redis_container_status
+
+- name: Remove Redis container with same name
+  command: docker rm {{ app_name }}.{{ app_branch }}-redis
+  when: redis_container_status.stdout.find('Exit ') != -1
+  register: redis_container_removed
+
+- name: Start new Redis container
+  command: >
+    docker run -i -t -d
+    -name {{ app_name }}.{{ app_branch }}-redis
+    -p 127.0.0.1::{{ redis_private_port }}
+    {{ redis_docker_image }}
+  when: (redis_container_status.stdout.find('Up ') == -1)

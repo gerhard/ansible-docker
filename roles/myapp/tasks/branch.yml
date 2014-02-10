@@ -1,0 +1,21 @@
+- name: Update nginx branch vhost
+  tags: run
+  template: src=nginx.branch.j2 dest=/etc/nginx/sites-enabled/{{ app_name }}.{{ app_branch }}
+  notify: reload nginx
+
+- name: Update DNS branch record
+  dnsmadeeasy: >
+    account_key={{ dnsmadeeasy_key }}
+    account_secret={{ dnsmadeeasy_secret }}
+    domain={{ app_fqdn }}
+    state=present
+    record_type=A
+    record_name={{ app_branch }}
+    record_value={{ ansible_default_ipv4.address }}
+
+- name: Notify HipChat of new branch container
+  hipchat: >
+    token={{ hipchat_token }}
+    room={{ hipchat_room }}
+    from={{ hipchat_from }}
+    msg="Latest {{ app_name }}/{{ app_branch }} shipped: {{ app_http_scheme }}://{{ app_branch }}.{{ app_fqdn }}"

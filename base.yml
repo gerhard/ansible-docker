@@ -1,0 +1,8 @@
+---
+- name: Base setup
+  sudo: true
+  hosts:
+    - all
+
+  roles:
+    - base

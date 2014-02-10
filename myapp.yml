@@ -1,0 +1,12 @@
+---
+- name : myapp - Rails
+  sudo: true
+  hosts:
+    - all
+
+  vars_files:
+    - vars/hipchat.yml
+    - vars/dnsmadeeasy.yml
+
+  roles:
+    - myapp

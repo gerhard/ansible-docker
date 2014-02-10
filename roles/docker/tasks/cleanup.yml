@@ -1,0 +1,2 @@
+# delete all non-running containers that don't end with _data
+# delete all images with <none>
