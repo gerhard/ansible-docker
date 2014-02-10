@@ -1,10 +1,10 @@
 Ansible code used for integrating with Docker.
 
-[January 2014 Docker Meetup Slides]()
+[January 2014 Docker Meetup Slides](https://speakerdeck.com/gerhardlazu/ansible-and-docker-the-path-to-continuous-delivery-part-1)
 
-[February 2014 LRUG 20x20 Slides]()
+[February 2014 LRUG 20x20 Slides](https://speakerdeck.com/gerhardlazu/ansible-and-docker-the-path-to-continuous-delivery-lrug-20x20)
 
-[Ansible & Docker - The Path to Continuous Integration I]()
+[Ansible & Docker - The Path to Continuous Integration I](http://gerhard.lazu.co.uk/ansible-docker-the-path-to-continuous-delivery-1)
 
 ## Pre-requisites
 
